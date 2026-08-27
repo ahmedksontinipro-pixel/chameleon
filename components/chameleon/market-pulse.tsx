@@ -1,0 +1,261 @@
+"use client"
+
+import { useState } from "react"
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
+import { cn } from "@/lib/utils"
+import { LayoutDashboard, LineChart, Building2, RefreshCw, TrendingUp, Loader2 } from "lucide-react"
+
+type ScanState = "idle" | "loading" | "done"
+
+const SIDEBAR_LINKS = [
+  { label: "Dashboard", icon: LayoutDashboard, active: true },
+  { label: "Skill Tracker", icon: LineChart, active: false },
+  { label: "Company Pipelines", icon: Building2, active: false },
+]
+
+const TREND_SERIES = [
+  { week: "W1", fintech: 42, saas: 30 },
+  { week: "W2", fintech: 51, saas: 38 },
+  { week: "W3", fintech: 63, saas: 44 },
+  { week: "W4", fintech: 72, saas: 55 },
+  { week: "W5", fintech: 85, saas: 61 },
+  { week: "W6", fintech: 94, saas: 73 },
+]
+
+const KEYWORD_BARS = [
+  { keyword: "FinTech AI Risk Mgmt", value: 94 },
+  { keyword: "Autonomous SaaS", value: 81 },
+  { keyword: "Data Risk Modeling", value: 67 },
+  { keyword: "Product Scaling", value: 58 },
+  { keyword: "Agentic Workflows", value: 49 },
+]
+
+function ChartTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="rounded-md border border-border bg-card px-3 py-2 text-xs shadow-lg">
+      <p className="mb-1 font-semibold text-card-foreground">{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.dataKey} className="flex items-center gap-2 text-muted-foreground">
+          <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
+          {p.name}: <span className="font-medium text-card-foreground">{p.value}</span>
+        </p>
+      ))}
+    </div>
+  )
+}
+
+export function MarketPulse() {
+  const [scan, setScan] = useState<ScanState>("idle")
+
+  function runScan() {
+    setScan("loading")
+    setTimeout(() => setScan("done"), 2200)
+  }
+
+  return (
+    <div className="flex">
+      {/* Sidebar */}
+      <aside className="hidden w-60 shrink-0 border-r border-sidebar-border bg-sidebar px-3 py-6 text-sidebar-foreground md:block">
+        <p className="px-3 pb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/50">
+          Navigation
+        </p>
+        <nav className="flex flex-col gap-1">
+          {SIDEBAR_LINKS.map((link) => (
+            <button
+              key={link.label}
+              type="button"
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                link.active
+                  ? "bg-primary/15 text-sidebar-foreground"
+                  : "text-sidebar-foreground/65 hover:bg-white/5 hover:text-sidebar-foreground",
+              )}
+            >
+              <link.icon className="h-[18px] w-[18px]" />
+              {link.label}
+              {link.active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+            </button>
+          ))}
+        </nav>
+
+        <div className="mt-8 rounded-lg border border-sidebar-border bg-black/20 p-4">
+          <p className="text-xs font-semibold text-sidebar-foreground">Signals tracked</p>
+          <p className="mt-1 font-mono text-2xl font-semibold text-sidebar-foreground">1,284</p>
+          <p className="mt-1 text-[11px] text-sidebar-foreground/55">across 42 markets</p>
+        </div>
+      </aside>
+
+      {/* Main */}
+      <div className="flex-1 px-6 py-8 lg:px-10">
+        <div className="mb-6">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground/70">Dashboard</p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">Market Analysis Hub</h1>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            Scan real-time global hiring signals to surface the emerging business and tech skills recruiters are
+            actively sourcing.
+          </p>
+        </div>
+
+        {/* Hub panel */}
+        <section className="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-border p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Global Job Market Scan</h2>
+              <p className="text-sm text-muted-foreground">Pull the latest keyword velocity across live job feeds.</p>
+            </div>
+            <button
+              type="button"
+              onClick={runScan}
+              disabled={scan === "loading"}
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-80",
+              )}
+            >
+              {scan === "loading" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              {scan === "loading" ? "Scanning markets…" : "Scan Global Job Markets Now"}
+            </button>
+          </div>
+
+          <div className="p-6">
+            {scan === "idle" && (
+              <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border py-16 text-center">
+                <TrendingUp className="h-8 w-8 text-muted-foreground/50" />
+                <p className="text-sm font-medium text-card-foreground">No scan run yet</p>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  Press{" "}
+                  <span className="font-medium text-card-foreground">Scan Global Job Markets Now</span> to populate
+                  live trend data.
+                </p>
+              </div>
+            )}
+
+            {scan === "loading" && (
+              <div className="flex flex-col items-center justify-center gap-4 py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="w-full max-w-md">
+                  <div className="mb-2 flex justify-between text-xs text-muted-foreground">
+                    <span>Aggregating 42 global markets…</span>
+                    <span className="font-mono">indexing</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div className="h-full w-2/3 animate-pulse rounded-full bg-primary" />
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {["Parsing FinTech postings", "Clustering SaaS roles", "Ranking skill velocity"].map((t) => (
+                      <p key={t} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-chart-3" />
+                        {t}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {scan === "done" && (
+              <div className="space-y-6">
+                {/* Highlight badges */}
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { label: "FinTech AI Risk Management", delta: "+118%" },
+                    { label: "Autonomous SaaS Deployments", delta: "+94%" },
+                  ].map((k) => (
+                    <div
+                      key={k.label}
+                      className="flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-medium text-card-foreground"
+                    >
+                      <TrendingUp className="h-4 w-4 text-primary" />
+                      {k.label}
+                      <span className="font-mono text-xs font-semibold text-chart-3">{k.delta}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-5">
+                  {/* Line/area chart */}
+                  <div className="rounded-lg border border-border p-4 lg:col-span-3">
+                    <p className="mb-3 text-sm font-semibold text-card-foreground">Emerging keyword velocity</p>
+                    <div className="h-64 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={TREND_SERIES} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="gFintech" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.4} />
+                              <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="gSaas" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.35} />
+                              <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                          <XAxis dataKey="week" tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} />
+                          <YAxis tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} />
+                          <Tooltip content={<ChartTooltip />} />
+                          <Area
+                            type="monotone"
+                            dataKey="fintech"
+                            name="FinTech AI Risk"
+                            stroke="var(--chart-1)"
+                            strokeWidth={2.5}
+                            fill="url(#gFintech)"
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="saas"
+                            name="Autonomous SaaS"
+                            stroke="var(--chart-2)"
+                            strokeWidth={2.5}
+                            fill="url(#gSaas)"
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Bar chart */}
+                  <div className="rounded-lg border border-border p-4 lg:col-span-2">
+                    <p className="mb-3 text-sm font-semibold text-card-foreground">Top trending keywords</p>
+                    <div className="h-64 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={KEYWORD_BARS} layout="vertical" margin={{ top: 0, right: 12, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                          <XAxis type="number" hide />
+                          <YAxis
+                            type="category"
+                            dataKey="keyword"
+                            width={120}
+                            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <Tooltip content={<ChartTooltip />} cursor={{ fill: "var(--muted)" }} />
+                          <Bar dataKey="value" name="Demand index" fill="var(--chart-1)" radius={[0, 4, 4, 0]} barSize={16} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
