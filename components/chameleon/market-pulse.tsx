@@ -13,14 +13,40 @@ import {
   YAxis,
 } from "recharts"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, LineChart, Building2, RefreshCw, TrendingUp, Loader2 } from "lucide-react"
+import {
+  LayoutDashboard,
+  LineChart,
+  Building2,
+  RefreshCw,
+  TrendingUp,
+  Loader2,
+  CheckCircle2,
+  Circle,
+  ArrowUpRight,
+} from "lucide-react"
 
 type ScanState = "idle" | "loading" | "done"
+type Section = "dashboard" | "skills" | "pipelines"
 
-const SIDEBAR_LINKS = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "Skill Tracker", icon: LineChart, active: false },
-  { label: "Company Pipelines", icon: Building2, active: false },
+const SIDEBAR_LINKS: { label: string; icon: typeof LayoutDashboard; section: Section }[] = [
+  { label: "Dashboard", icon: LayoutDashboard, section: "dashboard" },
+  { label: "Skill Tracker", icon: LineChart, section: "skills" },
+  { label: "Company Pipelines", icon: Building2, section: "pipelines" },
+]
+
+const SKILLS = [
+  { name: "FinTech AI Risk Management", level: 82, status: "in-progress", trend: "+118%" },
+  { name: "Autonomous SaaS Deployments", level: 74, status: "in-progress", trend: "+94%" },
+  { name: "Data Risk Modeling", level: 100, status: "mastered", trend: "+67%" },
+  { name: "Agentic Workflow Design", level: 45, status: "in-progress", trend: "+49%" },
+  { name: "Product Scaling Strategy", level: 100, status: "mastered", trend: "+58%" },
+]
+
+const PIPELINES = [
+  { company: "Meridian Capital", role: "AI Risk Lead", stage: "Interview", match: 94, color: "var(--chart-3)" },
+  { company: "Nimbus SaaS", role: "Autonomous Deploy Eng.", stage: "Screening", match: 88, color: "var(--chart-1)" },
+  { company: "Vertex Data", role: "Risk Modeling PM", stage: "Applied", match: 81, color: "var(--chart-2)" },
+  { company: "Apex Product Labs", role: "Scaling Strategist", stage: "Offer", match: 91, color: "var(--chart-3)" },
 ]
 
 const TREND_SERIES = [
@@ -57,6 +83,7 @@ function ChartTooltip({ active, payload, label }: any) {
 
 export function MarketPulse() {
   const [scan, setScan] = useState<ScanState>("idle")
+  const [section, setSection] = useState<Section>("dashboard")
 
   function runScan() {
     setScan("loading")
@@ -71,22 +98,26 @@ export function MarketPulse() {
           Navigation
         </p>
         <nav className="flex flex-col gap-1">
-          {SIDEBAR_LINKS.map((link) => (
-            <button
-              key={link.label}
-              type="button"
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-                link.active
-                  ? "bg-primary/15 text-sidebar-foreground"
-                  : "text-sidebar-foreground/65 hover:bg-white/5 hover:text-sidebar-foreground",
-              )}
-            >
-              <link.icon className="h-[18px] w-[18px]" />
-              {link.label}
-              {link.active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
-            </button>
-          ))}
+          {SIDEBAR_LINKS.map((link) => {
+            const active = section === link.section
+            return (
+              <button
+                key={link.label}
+                type="button"
+                onClick={() => setSection(link.section)}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-primary/15 text-sidebar-foreground"
+                    : "text-sidebar-foreground/65 hover:bg-white/5 hover:text-sidebar-foreground",
+                )}
+              >
+                <link.icon className="h-[18px] w-[18px]" />
+                {link.label}
+                {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+              </button>
+            )
+          })}
         </nav>
 
         <div className="mt-8 rounded-lg border border-sidebar-border bg-black/20 p-4">
@@ -98,6 +129,11 @@ export function MarketPulse() {
 
       {/* Main */}
       <div className="flex-1 px-6 py-8 lg:px-10">
+        {section === "skills" && <SkillTracker />}
+        {section === "pipelines" && <CompanyPipelines />}
+
+        {section === "dashboard" && (
+        <>
         <div className="mb-6">
           <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground/70">Dashboard</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">Market Analysis Hub</h1>
@@ -255,6 +291,123 @@ export function MarketPulse() {
             )}
           </div>
         </section>
+        </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SkillTracker() {
+  return (
+    <div>
+      <div className="mb-6">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground/70">Skill Tracker</p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">Your Skill Progression</h1>
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          Track mastery across the market-driven skills recruiters are actively sourcing.
+        </p>
+      </div>
+
+      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        {[
+          { label: "Skills mastered", value: "2" },
+          { label: "In progress", value: "3" },
+          { label: "Avg. market demand", value: "+77%" },
+        ].map((s) => (
+          <div key={s.label} className="rounded-xl border border-border bg-card p-5 text-card-foreground shadow-sm">
+            <p className="text-sm text-muted-foreground">{s.label}</p>
+            <p className="mt-1 font-mono text-2xl font-semibold">{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <section className="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+        <div className="border-b border-border p-6">
+          <h2 className="text-lg font-semibold">Tracked skills</h2>
+          <p className="text-sm text-muted-foreground">Mastery level mapped against live market demand.</p>
+        </div>
+        <ul className="divide-y divide-border">
+          {SKILLS.map((skill) => (
+            <li key={skill.name} className="flex items-center gap-4 p-6">
+              {skill.status === "mastered" ? (
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-chart-3" />
+              ) : (
+                <Circle className="h-5 w-5 shrink-0 text-muted-foreground/50" />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="truncate text-sm font-medium text-card-foreground">{skill.name}</p>
+                  <span className="font-mono text-xs font-semibold text-chart-3">{skill.trend}</span>
+                </div>
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={cn("h-full rounded-full", skill.status === "mastered" ? "bg-chart-3" : "bg-primary")}
+                    style={{ width: `${skill.level}%` }}
+                  />
+                </div>
+              </div>
+              <span className="w-16 shrink-0 text-right text-xs font-medium text-muted-foreground">
+                {skill.status === "mastered" ? "Mastered" : `${skill.level}%`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  )
+}
+
+function CompanyPipelines() {
+  const stageColors: Record<string, string> = {
+    Applied: "bg-muted text-muted-foreground",
+    Screening: "bg-chart-2/15 text-card-foreground",
+    Interview: "bg-primary/15 text-card-foreground",
+    Offer: "bg-chart-3/15 text-card-foreground",
+  }
+  return (
+    <div>
+      <div className="mb-6">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground/70">Company Pipelines</p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">Active Opportunity Pipelines</h1>
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          Companies sourcing your verified skills, ranked by profile match.
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {PIPELINES.map((p) => (
+          <div
+            key={p.company}
+            className="group rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm transition-colors hover:border-primary/40"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-base font-semibold">{p.company}</p>
+                <p className="text-sm text-muted-foreground">{p.role}</p>
+              </div>
+              <span className={cn("rounded-full px-3 py-1 text-xs font-medium", stageColors[p.stage])}>{p.stage}</span>
+            </div>
+
+            <div className="mt-5">
+              <div className="mb-1.5 flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Profile match</span>
+                <span className="font-mono font-semibold text-card-foreground">{p.match}%</span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div className="h-full rounded-full" style={{ width: `${p.match}%`, background: p.color }} />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:brightness-110"
+            >
+              View pipeline
+              <ArrowUpRight className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   )
