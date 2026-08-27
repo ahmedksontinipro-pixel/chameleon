@@ -23,14 +23,19 @@ import {
   CheckCircle2,
   Circle,
   ArrowUpRight,
+  ArrowRight,
+  Rocket,
+  Clock,
+  Target,
 } from "lucide-react"
 
 type ScanState = "idle" | "loading" | "done"
-type Section = "dashboard" | "skills" | "pipelines"
+type Section = "dashboard" | "skills" | "pipelines" | "projects"
 
 const SIDEBAR_LINKS: { label: string; icon: typeof LayoutDashboard; section: Section }[] = [
   { label: "Dashboard", icon: LayoutDashboard, section: "dashboard" },
   { label: "Skill Tracker", icon: LineChart, section: "skills" },
+  { label: "Recommended Projects", icon: Rocket, section: "projects" },
   { label: "Company Pipelines", icon: Building2, section: "pipelines" },
 ]
 
@@ -47,6 +52,53 @@ const PIPELINES = [
   { company: "Nimbus SaaS", role: "Autonomous Deploy Eng.", stage: "Screening", match: 88, color: "var(--chart-1)" },
   { company: "Vertex Data", role: "Risk Modeling PM", stage: "Applied", match: 81, color: "var(--chart-2)" },
   { company: "Apex Product Labs", role: "Scaling Strategist", stage: "Offer", match: 91, color: "var(--chart-3)" },
+]
+
+const PROJECTS = [
+  {
+    title: "AI Credit Risk Scoring Engine",
+    skill: "FinTech AI Risk Management",
+    match: 96,
+    difficulty: "Advanced",
+    duration: "3–4 weeks",
+    demand: "+118%",
+    summary:
+      "Build a model-backed dashboard that scores loan applicants in real time and flags portfolio-level risk exposure.",
+    tags: ["Risk Modeling", "Python", "Dashboards"],
+  },
+  {
+    title: "Autonomous SaaS Deployment Pipeline",
+    skill: "Autonomous SaaS Deployments",
+    match: 91,
+    difficulty: "Advanced",
+    duration: "2–3 weeks",
+    demand: "+94%",
+    summary:
+      "Design a self-healing CI/CD pipeline that provisions, tests, and rolls back multi-tenant SaaS releases without human gates.",
+    tags: ["CI/CD", "Infra as Code", "Agents"],
+  },
+  {
+    title: "Fraud Signal Data Risk Model",
+    skill: "Data Risk Modeling",
+    match: 88,
+    difficulty: "Intermediate",
+    duration: "2 weeks",
+    demand: "+67%",
+    summary:
+      "Cluster transaction anomalies and produce an explainable risk report suitable for a compliance review.",
+    tags: ["Data Modeling", "Analytics", "Compliance"],
+  },
+  {
+    title: "Agentic Onboarding Workflow",
+    skill: "Agentic Workflow Design",
+    match: 79,
+    difficulty: "Intermediate",
+    duration: "1–2 weeks",
+    demand: "+49%",
+    summary:
+      "Orchestrate a multi-step agent that handles customer onboarding, escalations, and audit logging end to end.",
+    tags: ["Agents", "Workflow", "Automation"],
+  },
 ]
 
 const TREND_SERIES = [
@@ -131,6 +183,7 @@ export function MarketPulse() {
       <div className="flex-1 px-6 py-8 lg:px-10">
         {section === "skills" && <SkillTracker />}
         {section === "pipelines" && <CompanyPipelines />}
+        {section === "projects" && <ProjectRecommendations />}
 
         {section === "dashboard" && (
         <>
@@ -287,6 +340,27 @@ export function MarketPulse() {
                     </div>
                   </div>
                 </div>
+
+                {/* Directed next step: projects matching the trend */}
+                <div className="flex flex-col gap-4 rounded-lg border border-primary/30 bg-primary/10 p-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-card-foreground">
+                      {PROJECTS.length} projects match today&apos;s trending skills
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Start building on FinTech AI Risk Management and Autonomous SaaS Deployments to fast-track your
+                      portfolio.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSection("projects")}
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:brightness-110"
+                  >
+                    View Recommended Projects
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -354,6 +428,74 @@ function SkillTracker() {
           ))}
         </ul>
       </section>
+    </div>
+  )
+}
+
+function ProjectRecommendations() {
+  const difficultyColors: Record<string, string> = {
+    Intermediate: "bg-chart-2/15 text-card-foreground",
+    Advanced: "bg-primary/15 text-card-foreground",
+  }
+  return (
+    <div>
+      <div className="mb-6">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground/70">Recommended Projects</p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">Projects Matching the Trend</h1>
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          Curated build challenges mapped to the skills spiking in today&apos;s scan. Complete one to verify the skill
+          and unlock it on your portfolio.
+        </p>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {PROJECTS.map((p) => (
+          <div
+            key={p.title}
+            className="group flex flex-col rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm transition-colors hover:border-primary/40"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-card-foreground">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                {p.skill}
+                <span className="font-mono font-semibold text-chart-3">{p.demand}</span>
+              </div>
+              <span className={cn("rounded-full px-3 py-1 text-xs font-medium", difficultyColors[p.difficulty])}>
+                {p.difficulty}
+              </span>
+            </div>
+
+            <h2 className="mt-4 text-base font-semibold">{p.title}</h2>
+            <p className="mt-1 flex-1 text-sm text-muted-foreground">{p.summary}</p>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {p.tags.map((t) => (
+                <span key={t} className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                  {t}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-5 flex items-center gap-4 border-t border-border pt-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Target className="h-3.5 w-3.5 text-primary" />
+                <span className="font-mono font-semibold text-card-foreground">{p.match}%</span> match
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" />
+                {p.duration}
+              </span>
+              <button
+                type="button"
+                className="ml-auto inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-colors hover:brightness-110"
+              >
+                Start project
+                <ArrowUpRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
